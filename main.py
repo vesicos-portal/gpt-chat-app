@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
-import openai
 import os
+import openai
+client = openai.OpenAI()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -35,15 +36,15 @@ def chat():
 
     email = session['user']
     message = request.form['message']
-
     user_chats[email].append({"role": "user", "content": message})
 
     try:
-        response = openai.ChatCompletion.create(
+        client = openai.OpenAI()
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=user_chats[email]
         )
-        reply = response.choices[0].message['content']
+        reply = response.choices[0].message.content
         user_chats[email].append({"role": "assistant", "content": reply})
         return jsonify({"reply": reply})
 
